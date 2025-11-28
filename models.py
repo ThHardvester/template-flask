@@ -1,0 +1,30 @@
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from extensions import db
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128))
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
+    phone = db.Column(db.String(20))
+    address = db.Column(db.String(200))
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'phone': self.phone,
+            'address': self.address,
+        }
+
+

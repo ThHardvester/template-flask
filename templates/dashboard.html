@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mt-5">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3>Mi Perfil</h3>
+                <button id="logout-btn" class="btn btn-danger btn-sm">Cerrar Sesión</button>
+            </div>
+            <div class="card-body">
+                <div id="profile-data">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadProfile() {
+    try {
+        const response = await fetch('/api/dashboard');
+        if (response.ok) {
+            const data = await response.json();
+            const user = data.profile;
+            
+            document.getElementById('profile-data').innerHTML = `
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Nombre Completo:</strong> ${user.first_name} ${user.last_name}</li>
+                    <li class="list-group-item"><strong>Email:</strong> ${user.email}</li>
+                    <li class="list-group-item"><strong>Teléfono:</strong> ${user.phone || 'No registrado'}</li>
+                    <li class="list-group-item"><strong>Dirección:</strong> ${user.address || 'No registrada'}</li>
+                </ul>
+            `;
+            
+            // Actualizar navbar
+            document.getElementById('auth-nav').innerHTML = `
+                <li class="nav-item"><span class="nav-link">Hola, ${user.first_name}</span></li>
+            `;
+        } else {
+            window.location.href = '/';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+    await fetch('/api/logout');
+    window.location.href = '/';
+});
+
+loadProfile();
+</script>
+{% endblock %}
+
